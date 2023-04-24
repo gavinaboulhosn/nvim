@@ -63,6 +63,21 @@ return require('packer').startup(function(use)
 		use("eandrju/cellular-automaton.nvim")
 		use("laytan/cloak.nvim")
 
+        use {
+            "kyazdani42/nvim-tree.lua",
+            requires = { "kyazdani42/nvim-web-devicons" },
+            cmd = { "NvimTreeToggle", "NvimTreeFindFile" },
+            config = function()
+                require("nvim-web-devicons").setup()
+
+                require("nvim-tree").setup {
+                    hijack_cursor = true,
+                    view = {
+                        width = 40
+                    }
+                }
+            end
+        }
 	end)
 
 
