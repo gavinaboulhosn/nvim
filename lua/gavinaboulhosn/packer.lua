@@ -1,87 +1,196 @@
+-- Check if packer exists, if not, then install
+if not pcall(vim.cmd, [[packadd packer.nvim]]) then
+    if vim.fn.input("Install packer? (y)") ~= "y" then
+        return
+    end
 
--- Only required if you have packer configured as `opt`
+    local install_dir = string.format('%s/site/pack/packer/opt/', vim.fn.stdpath('data'))
+
+    vim.fn.mkddir(install_dir, 'p')
+
+    print(vim.fn.system(string.format('git clone --depth 1 %s %s', 'https://github.com/wbthomason/packer.nvim',
+        install_dir .. '/packer.nvim')))
+    return
+end
+
 vim.cmd [[packadd packer.nvim]]
 
 return require('packer').startup(function(use)
-	-- Packer can manage itself
-	use 'wbthomason/packer.nvim'
+    -- Packer can manage itself
+    use {
+        'wbthomason/packer.nvim',
+        opt = true
+    }
+    use({
+        "jose-elias-alvarez/null-ls.nvim",
+        requires = { "nvim-lua/plenary.nvim" },
+    })
+    use 'kessejones/git-blame-line.nvim'
+    use {
+        'nvim-lualine/lualine.nvim',
+        requires = { 'nvim-tree/nvim-web-devicons', opt = true }
+    }
 
-	use {
-		'nvim-telescope/telescope.nvim', tag = '0.1.1',
-		-- or                            , branch = '0.1.x',
-		requires = { {'nvim-lua/plenary.nvim'} }
-	}
-
-	use({
-		'rose-pine/neovim',
-		as = 'rose-pine',
-		config = function()
-			vim.cmd('colorscheme rose-pine')
-		end
-	})
-
-
-	use {
-		'nvim-treesitter/nvim-treesitter',
-		run = function()
-			local ts_update = require('nvim-treesitter.install').update({ with_sync = true })
-			ts_update()
-		end,}
-
-		use("nvim-treesitter/playground")
-		use('theprimeagen/harpoon')
-        use('theprimeagen/refactoring.nvim')
-		use('mbbill/undotree')
-		use('tpope/vim-fugitive')
-		use("nvim-treesitter/nvim-treesitter-context");
-
-		use {
-			'VonHeikemen/lsp-zero.nvim',
-			branch = 'v1.x',
-			requires = {
-				-- LSP Support
-				{'neovim/nvim-lspconfig'},
-				{'williamboman/mason.nvim'},
-				{'williamboman/mason-lspconfig.nvim'},
-
-				-- Autocompletion
-				{'hrsh7th/nvim-cmp'},
-				{'hrsh7th/cmp-buffer'},
-				{'hrsh7th/cmp-path'},
-				{'saadparwaiz1/cmp_luasnip'},
-				{'hrsh7th/cmp-nvim-lsp'},
-				{'hrsh7th/cmp-nvim-lua'},
-
-				-- Snippets
-				{'L3MON4D3/LuaSnip'},
-				{'rafamadriz/friendly-snippets'},
-			}
-		}
-
-		use("folke/zen-mode.nvim")
-		use("github/copilot.vim")
-		use("eandrju/cellular-automaton.nvim")
-		use("laytan/cloak.nvim")
-
-        use {
-            "kyazdani42/nvim-tree.lua",
-            requires = { "kyazdani42/nvim-web-devicons" },
-            cmd = { "NvimTreeToggle", "NvimTreeFindFile" },
-            config = function()
-                require("nvim-web-devicons").setup()
-
-                require("nvim-tree").setup {
-                    hijack_cursor = true,
-                    view = {
-                        width = 40
-                    }
-                }
-            end
+    use {
+        "ThePrimeagen/refactoring.nvim",
+        requires = {
+            { "nvim-lua/plenary.nvim" },
+            { "nvim-treesitter/nvim-treesitter" }
         }
+    }
+
+    use {
+        'nvim-telescope/telescope.nvim',
+        requires = { { 'nvim-lua/plenary.nvim' } }
+    }
+
+    use 'mg979/vim-visual-multi'
+    use 'ThePrimeagen/vim-be-good'
+
+    use({
+        "neanias/everforest-nvim",
+        -- Optional; default configuration will be used if setup isn't called.
+        config = function()
+            require("everforest").setup()
+        end,
+    })
 
 
-        use 'nvim-tree/nvim-web-devicons'
-        use {'romgrk/barbar.nvim', requires = 'nvim-web-devicons'}
-	end)
+    use {
+        "nvim-neo-tree/neo-tree.nvim",
+        branch = "v2.x",
+        requires = {
+            "nvim-lua/plenary.nvim",
+            "nvim-tree/nvim-web-devicons",
+            "MunifTanjim/nui.nvim",
+            {
+                -- only needed if you want to use the commands with "_with_window_picker" suffix
+                's1n7ax/nvim-window-picker',
+                tag = "v1.*"
+            } }
+    }
+
+    use {
+        'nvim-treesitter/nvim-treesitter',
+        run = ':TSUpdate'
+    }
+    use 'nvim-treesitter/playground'
+
+    use 'nvim-lua/plenary.nvim'
+    use 'ThePrimeagen/harpoon'
+    use 'mbbill/undotree'
+    use 'tpope/vim-fugitive'
+
+    use {
+        "folke/trouble.nvim",
+        requires = "nvim-tree/nvim-web-devicons",
+    }
+    use({
+        "iamcco/markdown-preview.nvim",
+        run = function() vim.fn["mkdp#util#install"]() end,
+    })
+
+    use "lukas-reineke/indent-blankline.nvim"
+
+    -- for comment toggling
+    use {
+        'numToStr/Comment.nvim',
+        config = function()
+            require('Comment').setup()
+        end
+    }
+
+    -- Adds virtual lines for diagnostics
+    use 'https://git.sr.ht/~whynothugo/lsp_lines.nvim'
+
+    -- Completion plugins
+    -- Auto inserts parathensis / brackets
+    use {
+        "windwp/nvim-autopairs",
+        config = function()
+            require("nvim-autopairs").setup {}
+        end
+    }
+    -- for icons in completion menu
+    -- use 'onsails/lspkind.nvim'
+
+    -- for git
+    use({
+        "petertriho/cmp-git",
+        requires = "nvim-lua/plenary.nvim"
+    })
+    use {
+        'nvim-telescope/telescope-fzf-native.nvim',
+        run = 'make'
+    }
+    -- fzf dep
+    use {
+        'junegunn/fzf',
+        run = './install --bin'
+    }
+    -- actual fzf integ
+    use {
+        'ibhagwan/fzf-lua',
+        requires = { 'nvim-tree/nvim-web-devicons' }
+    }
 
 
+    use 'WhoIsSethDaniel/toggle-lsp-diagnostics.nvim'
+
+    -- cmp filter 'fuzzy_buffer'
+    -- https://github.com/tzachar/cmp-fuzzy-buffer
+    use {
+        'tzachar/cmp-fuzzy-buffer',
+        requires = { 'hrsh7th/nvim-cmp', 'tzachar/fuzzy.nvim' }
+    }
+
+    -- cmp filter 'fuzzy_path'
+    -- https://github.com/tzachar/cmp-fuzzy-path
+    use {
+        'tzachar/cmp-fuzzy-path',
+        requires = { 'hrsh7th/nvim-cmp', 'tzachar/fuzzy.nvim' }
+    }
+
+    -- tmux
+    use { 'andersevenrud/cmp-tmux' }
+    -- lsp server plugin hoster i think ????
+    use {
+        'VonHeikemen/lsp-zero.nvim',
+        requires = {                     -- LSP Support
+            { 'neovim/nvim-lspconfig' }, -- Required
+            {
+                -- Optional
+                'williamboman/mason.nvim',
+                run = function()
+                    pcall(vim.cmd, 'MasonUpdate')
+                end
+            }, { 'williamboman/mason-lspconfig.nvim' },                        -- Optional
+            -- Autocompletion
+            { 'hrsh7th/nvim-cmp' },                                            -- Required
+            { 'hrsh7th/cmp-nvim-lsp' },                                        -- Required
+            { 'L3MON4D3/LuaSnip' },                                            -- Required
+            { 'lukas-reineke/lsp-format.nvim' },                               -- Required for async format on save
+            { 'lukas-reineke/cmp-under-comparator' }, { 'hrsh7th/vim-vsnip' }, -- required for auto complete snips
+            { 'hrsh7th/vim-vsnip-integ' },                                     -- required for auto compelete snips
+            { 'hrsh7th/cmp-buffer' }, { 'hrsh7th/cmp-path' }, { 'hrsh7th/cmp-cmdline' },
+            { 'hrsh7th/cmp-nvim-lsp-signature-help' },
+            { 'hrsh7th/cmp-calc' }, { 'hrsh7th/cmp-nvim-lsp-document-symbol' }, { 'FelipeLema/cmp-async-path' },
+            { 'dmitmel/cmp-cmdline-history' }, -- https://github.com/lukas-reineke/cmp-rg
+            { "lukas-reineke/cmp-rg" },        -- ripgrep source for cmp, completes any text in workspace
+            -- Zsh autocompletions
+            { "tamago324/cmp-zsh" }, { "Shougo/deol.nvim" }, { 'hrsh7th/cmp-emoji' }, { 'hrsh7th/cmp-nvim-lua' },
+            { 'lukas-reineke/cmp-under-comparator' } }
+    }
+    use {
+        'David-Kunz/cmp-npm',
+        requires = { 'nvim-lua/plenary.nvim' }
+    }
+
+    -- For auto-fetching lsp servers
+    use {
+        "williamboman/mason.nvim",
+        run = ":MasonUpdate" -- :MasonUpdate updates registry contents
+    }
+    use("folke/zen-mode.nvim")
+    use('nvim-tree/nvim-web-devicons')
+end)
