@@ -4,9 +4,10 @@ My nvim config
 
 ## Setup
 
-1. Clone the repository
+1. Clone the repository into ~/.config
 ```
-git clone git clone https://github.com/gavinaboulhosn/nvim.git
+cd ~/.config
+git clone https://github.com/gavinaboulhosn/nvim.git
 ```
 
 2. Install Packer
@@ -19,5 +20,6 @@ cd ~/.config/nvim
 nvim .
 :PackerSync
 ```
+NOTE: You will have to source the packer.lua file prior to running :PackerSync
 
 4. Profit
